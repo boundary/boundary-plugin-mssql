@@ -1,0 +1,114 @@
+{
+  "MSSQL_ACTIVE_TEMP_TABLES": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - Active Temp Tables",
+    "displayNameShort": "MSSQL - Temp Tables",
+    "unit": "number"
+  },
+  "MSSQL_COMPILATIONS": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - Compilations",
+    "displayNameShort": "MSSQL - Compilations",
+    "unit": "number"
+  },
+  "MSSQL_LOCK_AVERAGE_WAIT_TIME_MS": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - Lock Average Wait Time (ms)",
+    "displayNameShort": "MSSQL - Lck Avg Wait",
+    "unit": "number"
+  },
+  "MSSQL_LOCK_TIMEOUTS": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - Lock Timeouts",
+    "displayNameShort": "MSSQL - Lock Timeout",
+    "unit": "number"
+  },
+  "MSSQL_LOCK_TIMEOUTS_GT0": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - Lock Timeouts (>0)",
+    "displayNameShort": "MSSQL - Lock Tm >0",
+    "unit": "number"
+  },
+  "MSSQL_LOCK_WAITS": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - Lock Waits",
+    "displayNameShort": "MSSQL - Lock Waits",
+    "unit": "number"
+  },
+  "MSSQL_LOCK_WAIT_TIME_MS": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - Lock Wait Time (ms)",
+    "displayNameShort": "MSSQL - Lock Wait Tm",
+    "unit": "number"
+  },
+  "MSSQL_LOGICAL_CONNECTIONS": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - Logical Connections",
+    "displayNameShort": "MSSQL - Logicl Conns",
+    "unit": "number"
+  },
+  "MSSQL_PAGE_IO_LATCH_WAITS": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - IO Latch Waits",
+    "displayNameShort": "MSSQL - IO Latch Wts",
+    "unit": "number"
+  },
+  "MSSQL_PERCENT_LOG_USED": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - % Log Used",
+    "displayNameShort": "MSSQL - % Log Used",
+    "unit": "percent"
+  },
+  "MSSQL_PROCESSES_BLOCKED": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - Processes Blocked",
+    "displayNameShort": "MSSQL - Proc Blocked",
+    "unit": "number"
+  },
+  "MSSQL_REPL_PENDING_XACTS": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - Replication Pending Transactions",
+    "displayNameShort": "MSSQL - Repl Pend Xc",
+    "unit": "number"
+  },
+  "MSSQL_TRANSACTIONS": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - Transactions",
+    "displayNameShort": "MSSQL - Transactions",
+    "unit": "number"
+  },
+  "MSSQL_USER_CONNECTIONS": {
+    "defaultAggregate": "avg",
+    "defaultResolutionMS": 30000,
+    "description": "",
+    "displayName": "MSSQL - User Connections",
+    "displayNameShort": "MSSQL - User Conns",
+    "unit": "number"
+  }
+}
