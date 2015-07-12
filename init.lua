@@ -36,7 +36,6 @@ function plugin:onParseValues(data)
   local result = {}
   local output = data.output
   if output then
-    p(output)
     for v in gsplit(output, '\r\n') do
       local metric, value, source = string.match(v, '([%u_]+)%s([%d.?]+)%s(.+)')
       if metric and value and source then
