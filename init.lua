@@ -25,7 +25,7 @@ local params = framework.params
 
 local cmd = {
   path = 'powershell',
-  args = {'-NoProfile', '-File', 'get_metrics.ps1'},
+  args = {'-NoLogo -NonInteractive -NoProfile -Command Set-ExecutionPolicy UnRestricted; .\\get_metrics.ps1'},
   use_popen = true
 }
 
@@ -36,6 +36,7 @@ function plugin:onParseValues(data)
   local result = {}
   local output = data.output
   if output then
+    p(output)
     for v in gsplit(output, '\r\n') do
       local metric, value, source = string.match(v, '([%u_]+)%s([%d.?]+)%s(.+)')
       if metric and value and source then
