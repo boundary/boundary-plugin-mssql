@@ -1,8 +1,32 @@
 {
+    "name": "Boundary MSSQL Plugin",
+    "version": "0.9.1",
+    "meterVersionRequired": "4.2.0-611",
+    "unsupportedPlatforms": [
+        {
+            "osFamily": "Linux"
+        },
+        {
+            "osFamily": "SmartOS"
+        },
+        {
+            "osFamily": "Darwin"
+        },
+        {
+            "osFamily": "FreeBSD"
+        },
+        {
+            "osFamily": "Solaris"
+        }
+    ],
+    "tags": "mssql",
     "description": "Monitors Microsoft SQL Server",
+    "icon": "icon.png",
     "command": "powershell -NoLogo -NonInteractive -Command Set-ExecutionPolicy RemoteSigned; .\\plugin.ps1",
-    "icon" : "icon.png",
-    "metrics" : [
+    "postExtract": "",
+    "command_lua": "boundary-meter init.lua",
+    "postExtract_lua": "",
+    "metrics": [
         "MSSQL_ACTIVE_TEMP_TABLES",
         "MSSQL_USER_CONNECTIONS",
         "MSSQL_LOGICAL_CONNECTIONS",
@@ -16,12 +40,29 @@
         "MSSQL_PERCENT_LOG_USED",
         "MSSQL_REPL_PENDING_XACTS",
         "MSSQL_COMPILATIONS",
-        "MSSQL_PAGE_IO_LATCH_WAITS"],
-
-    "dashboards" : [{"name" : "MSSQL",
-        "layout" : 
-"d-w=4&d-h=3&d-pad=5&d-bg=none&d-g-MSSQL_PERCENT_LOG_USED=0-0-1-1&d-g-MSSQL_COMPILATIONS=1-0-1-1&d-g-MSSQL_LOCK_WAIT_TIME_MS=3-0-1-1-t&d-g-MSSQL_LOCK_AVERAGE_WAIT_TIME_MS=3-0-1-1-b&d-g-MSSQL_LOCK_WAITS=3-1-1-1&d-g-MSSQL_PAGE_IO_LATCH_WAITS=3-2-1-1&d-g-MSSQL_LOGICAL_CONNECTIONS=2-0-1-1&d-g-MSSQL_USER_CONNECTIONS=2-1-1-1&d-g-MSSQL_PROCESSES_BLOCKED=0-1-1-1&d-g-MSSQL_REPL_PENDING_XACTS=1-1-1-1&d-g-MSSQL_ACTIVE_TEMP_TABLES=0-2-1-1&d-g-MSSQL_TRANSACTIONS=1-2-1-1&d-g-MSSQL_LOCK_TIMEOUTS=2-2-1-1-t&d-g-MSSQL_LOCK_TIMEOUTS_GT0=2-2-1-1-b" }],
-
-    "paramSchema": []
+        "MSSQL_PAGE_IO_LATCH_WAITS"
+    ],
+   "dashboards": [
+        {
+            "layout": "d-w=4&d-h=3&d-pad=5&d-bg=none&d-g-MSSQL_PERCENT_LOG_USED=0-0-1-1&d-g-MSSQL_COMPILATIONS=1-0-1-1&d-g-MSSQL_LOCK_WAIT_TIME_MS=3-0-1-1-t&d-g-MSSQL_LOCK_AVERAGE_WAIT_TIME_MS=3-0-1-1-b&d-g-MSSQL_LOCK_WAITS=3-1-1-1&d-g-MSSQL_PAGE_IO_LATCH_WAITS=3-2-1-1&d-g-MSSQL_LOGICAL_CONNECTIONS=2-0-1-1&d-g-MSSQL_USER_CONNECTIONS=2-1-1-1&d-g-MSSQL_PROCESSES_BLOCKED=0-1-1-1&d-g-MSSQL_REPL_PENDING_XACTS=1-1-1-1&d-g-MSSQL_ACTIVE_TEMP_TABLES=0-2-1-1&d-g-MSSQL_TRANSACTIONS=1-2-1-1&d-g-MSSQL_LOCK_TIMEOUTS=2-2-1-1-t&d-g-MSSQL_LOCK_TIMEOUTS_GT0=2-2-1-1-b",
+            "name": "MSSQL"
+        }
+    ],
+    "paramSchema": [
+        {
+            "description": "The source to display in the legend for the data.",
+            "name": "source",
+            "required": false,
+            "title": "Source",
+            "type": "string"
+        },
+        {
+            "default": 2000,
+            "description": "How often (in milliseconds) to poll for metrics",
+            "name": "pollInterval",
+            "required": false,
+            "title": "Poll Interval (ms)",
+            "type": "integer"
+        }
+    ]
 }
-
