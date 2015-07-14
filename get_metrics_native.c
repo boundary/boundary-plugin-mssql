@@ -1,24 +1,21 @@
 #include <windows.h>
 #include <pdh.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-BOOL WINAPI GetCounterValues(LPTSTR serverName);
+BOOL WINAPI GetCounterValues(LPTSTR serverName, int n, char** instances);
 
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-    if (argc > 1)
-    {
-        // argv[1] - Server Name
-        GetCounterValues(argv[1]);
+    if (argc <= 1) {
+        fprintf(stderr, "You must specify SQLServer instance names. Exiting...\n");
+        return -1;
     }
-    else
-    {
-        // Local System
-        GetCounterValues(NULL);
-    }
+
+    GetCounterValues(NULL, argc-1, &argv[1]);
 }
 
-BOOL WINAPI GetCounterValues(LPTSTR serverName)
+BOOL WINAPI GetCounterValues(LPTSTR serverName, int instancesCount, char **instances)
 {
     PDH_STATUS s;
 
@@ -38,31 +35,35 @@ BOOL WINAPI GetCounterValues(LPTSTR serverName)
 
     // Each element in the array is a PDH_COUNTER_PATH_ELEMENTS structure.
 
-    PDH_COUNTER_PATH_ELEMENTS cpe[] =
+    PDH_COUNTER_PATH_ELEMENTS cpeTmpl[] =
     {
-        { NULL, "MSSQL$SQLSERVER2014:locks", "_total", NULL, -1, "lock waits/sec"},
-        { NULL, "MSSQL$SQLSERVER2014:general statistics", NULL, NULL, -1, "active temp tables"},
-        { NULL, "MSSQL$SQLSERVER2014:locks", "_total", NULL, -1, "average wait time (ms)"},
-        { NULL, "MSSQL$SQLSERVER2014:locks", "_total", NULL, -1, "lock timeouts (timeout > 0)/sec"},
-        { NULL, "MSSQL$SQLSERVER2014:wait statistics", "_total", NULL, -1, "page io latch waits"},
-        { NULL, "MSSQL$SQLSERVER2014:databases", "_total", NULL, -1, "repl. pending xacts"},
-        { NULL, "MSSQL$SQLSERVER2014:general statistics", NULL, NULL, -1, "logical connections"},
-        { NULL, "MSSQL$SQLSERVER2014:locks", "_total", NULL, -1, "lock wait time (ms)"},
-        { NULL, "MSSQL$SQLSERVER2014:general statistics", NULL, NULL, -1, "transactions"},
-        { NULL, "MSSQL$SQLSERVER2014:general statistics", NULL, NULL, -1, "processes blocked"},
-        { NULL, "MSSQL$SQLSERVER2014:sql statistics", NULL, NULL, -1, "sql compilations/sec"},
-        { NULL, "MSSQL$SQLSERVER2014:general statistics", NULL, NULL, -1, "user connections"},
-        { NULL, "MSSQL$SQLSERVER2014:locks", "_total", NULL, -1, "lock timeouts/sec"},
-        { NULL, "MSSQL$SQLSERVER2014:databases", "_total", NULL, -1, "percent log used"}
+        { NULL, "%s:locks", "_total", NULL, -1, "lock waits/sec"},
+        { NULL, "%s:general statistics", NULL, NULL, -1, "active temp tables"},
+        { NULL, "%s:locks", "_total", NULL, -1, "average wait time (ms)"},
+        { NULL, "%s:locks", "_total", NULL, -1, "lock timeouts (timeout > 0)/sec"},
+        //{ NULL, "%s:wait statistics", "_total", NULL, -1, "page io latch waits"},
+        { NULL, "%s:databases", "_total", NULL, -1, "repl. pending xacts"},
+        { NULL, "%s:general statistics", NULL, NULL, -1, "logical connections"},
+        { NULL, "%s:locks", "_total", NULL, -1, "lock wait time (ms)"},
+        { NULL, "%s:general statistics", NULL, NULL, -1, "transactions"},
+        { NULL, "%s:general statistics", NULL, NULL, -1, "processes blocked"},
+        { NULL, "%s:sql statistics", NULL, NULL, -1, "sql compilations/sec"},
+        { NULL, "%s:general statistics", NULL, NULL, -1, "user connections"},
+        { NULL, "%s:locks", "_total", NULL, -1, "lock timeouts/sec"},
+        { NULL, "%s:databases", "_total", NULL, -1, "percent log used"}
     };
 
-    HCOUNTER hCounter[sizeof(cpe)/sizeof(cpe[0])];
+    const int cpeTmplCount = sizeof(cpeTmpl) / sizeof(cpeTmpl[0]);
+    const int countersCount = instancesCount * cpeTmplCount;
+    int i, j;
+
+    HCOUNTER *hCounter = malloc(sizeof(HCOUNTER) * countersCount);
+    PDH_COUNTER_PATH_ELEMENTS *cpe = malloc(sizeof(PDH_COUNTER_PATH_ELEMENTS) * countersCount);
 
     char szFullPath[MAX_PATH];
     DWORD cbPathSize;
-    int   i, j;
 
-    BOOL  ret = FALSE;
+    int ret = -1;
 
     PDH_FMT_COUNTERVALUE counterValue;
 
@@ -73,36 +74,41 @@ BOOL WINAPI GetCounterValues(LPTSTR serverName)
         return ret;
     }
 
-    for (i = 0; i < sizeof(hCounter)/sizeof(hCounter[0]); i++)
+    // Process instances to generate performance counter paths.
+    for (i = 0; i < instancesCount; i++)
     {
-        cbPathSize = sizeof(szFullPath);
+        LPSTR instanceName = instances[i];
 
-        cpe[i].szMachineName = serverName;
+        for (j = 0; j < cpeTmplCount; j++) {
+            
+            int index = i * cpeTmplCount + j;
 
-        if ((s = PdhMakeCounterPath(&cpe[i],
-            szFullPath, &cbPathSize, 0)) != ERROR_SUCCESS)
-        {
-            fprintf(stderr,"MCP failed %08x\n", s);
-            return ret;
-        }
+            cbPathSize = sizeof(szFullPath);
 
-        /*if (cpe[i].szInstanceName)
-        {
-            printf("Adding [%s\\%s\\%s]\n",
-                    cpe[i].szObjectName,
-                    cpe[i].szCounterName,
-                    cpe[i].szInstanceName);
-        }
-        else
-            printf("Adding [%s\\%s]\n",
-                    cpe[i].szObjectName,
-                    cpe[i].szCounterName);
-        */    
-        if ((s = PdhAddCounter(hQuery, szFullPath, 0, &hCounter[i]))
-            != ERROR_SUCCESS)
-        {
-            fprintf(stderr, "PAC failed %08x for %s\n", s, cpe[i].szCounterName);
-            return ret;
+            PDH_COUNTER_PATH_ELEMENTS cpeTmplItem = cpeTmpl[j];
+
+            cpe[index].szMachineName = cpeTmplItem.szMachineName;
+            LPSTR szObjectName = malloc(cbPathSize);
+            sprintf(szObjectName, cpeTmplItem.szObjectName, instanceName);
+            cpe[index].szInstanceName = cpeTmplItem.szInstanceName;
+            cpe[index].szObjectName = szObjectName;
+            cpe[index].szParentInstance = cpeTmplItem.szParentInstance;
+            cpe[index].dwInstanceIndex = cpeTmplItem.dwInstanceIndex;
+            cpe[index].szCounterName = cpeTmplItem.szCounterName;
+
+            if ((s = PdhMakeCounterPath(&cpe[index],
+                szFullPath, &cbPathSize, 0)) != ERROR_SUCCESS)
+            {
+                fprintf(stderr,"MCP failed %08x\n", s);
+                return ret;
+            }
+
+            if ((s = PdhAddCounter(hQuery, szFullPath, 0, &hCounter[index]))
+                != ERROR_SUCCESS)
+            {
+                fprintf(stderr, "PAC failed %08x for %s\n", s, cpe[index].szCounterName);
+                //return ret;
+            }
         }
     }
 
@@ -120,12 +126,12 @@ BOOL WINAPI GetCounterValues(LPTSTR serverName)
         if (i == 0) continue;
 
         // Extract the calculated performance counter value for each counter or instance.
-        for (j = 0; j < sizeof(hCounter)/sizeof(hCounter[0]); j++)
+        for (j = 0; j < countersCount; j++)
         {
             if ((s = PdhGetFormattedCounterValue(hCounter[j], PDH_FMT_DOUBLE,
                 NULL, &counterValue)) != ERROR_SUCCESS)
             {
-                //fprintf(stderr, "PGFCV failed %08x %d\n", s, hCounter[j]);
+                fprintf(stderr, "PGFCV failed %08x %d\n", s, hCounter[j]);
                 continue;
             }
             if (cpe[j].szInstanceName)
@@ -145,13 +151,17 @@ BOOL WINAPI GetCounterValues(LPTSTR serverName)
     }
 
     // Remove all the counters from the query.
-    for (i = 0; i < sizeof(hCounter)/sizeof(hCounter[0]); i++)
+    for (i = 0; i < countersCount; i++)
     {
         PdhRemoveCounter(hCounter[i]);
+        free(cpe[i].szObjectName);
     }
 
     // Only do this cleanup once.
     PdhCloseQuery(hQuery);
 
-    return TRUE;
+    free(hCounter);
+    free(cpe);
+
+    return 0;
 }

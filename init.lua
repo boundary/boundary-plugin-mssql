@@ -19,6 +19,7 @@ local Plugin = framework.Plugin
 local CachedDataSource = framework.CachedDataSource
 local os = require('os')
 local gsplit = framework.string.gsplit
+local split = framework.string.split
 local pack = framework.util.pack
 
 local params = framework.params
@@ -40,14 +41,30 @@ local metrics_map = {
   ['wait statistics(_total)\\page io latch waits'] = {'MSSQL_PAGE_IO_LATCH_WAITS', 1}
 }
 
-local cmd = {
-  path = 'get_metrics_native.exe',
-  args = {},
+local cmd_instances = {
+  path = "powershell.exe",
+  args = {'-NoLogo -NonInteractive -NoProfile -Command Set-ExecutionPolicy UnRestricted; .\\mssql_instances.ps1'},
   use_popen = true
 }
 
-local ds = CommandOutputDataSource:new(cmd)
-local plugin = Plugin:new(params, ds)
+local ds_instances = CommandOutputDataSource:new(cmd_instances)
+
+local cmd_metrics = {
+  path = 'get_metrics_native.exe',
+  args = {}, -- to be completed on chain transformation function.
+  use_popen = false 
+}
+
+local ds_metrics = CommandOutputDataSource:new(cmd_metrics)
+local INSTANCE_REFRESH_SECONDS = 60 
+
+local ds_cached = CachedDataSource:new(ds_instances, INSTANCE_REFRESH_SECONDS)
+ds_cached:chain(ds_metrics, function (data)
+  local instances = split((data.output):sub(1,-2), ' ')
+  ds_metrics.args = instances 
+end)
+
+local plugin = Plugin:new(params, ds_cached)
 
 function plugin:onParseValues(data)
   local result = {}
