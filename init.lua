@@ -14,10 +14,8 @@
 
 local framework = require('framework')
 local CommandOutputDataSource = framework.CommandOutputDataSource
-local DataSource = framework.DataSource
 local Plugin = framework.Plugin
 local CachedDataSource = framework.CachedDataSource
-local os = require('os')
 local gsplit = framework.string.gsplit
 local split = framework.string.split
 local pack = framework.util.pack
@@ -73,8 +71,8 @@ function plugin:onParseValues(data)
     for v in gsplit(output, '\r\n') do
       local source, metric, value = string.match(v, '(.+):(.+):([%d.?]+)')
       if metric and value and source then
-        boundary_metric = metrics_map[metric][1]
-        factor = metrics_map[metric][2]
+        local boundary_metric = metrics_map[metric][1]
+        local factor = metrics_map[metric][2]
         value = factor * tonumber(value)
         source = self.source .. '.' .. source
         table.insert(result, pack(boundary_metric, value, nil, source))
