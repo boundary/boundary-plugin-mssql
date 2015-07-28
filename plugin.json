@@ -50,19 +50,20 @@
     ],
     "paramSchema": [
         {
-            "description": "The source to display in the legend for the data.",
-            "name": "source",
-            "required": false,
-            "title": "Source",
-            "type": "string"
+            "title": "Poll Interval (ms)",
+            "description": "How often (in milliseconds) to poll for metrics.",
+            "name": "pollInterval",
+            "default": 2000,
+            "type": "integer",
+            "required": false
         },
         {
-            "default": 2000,
-            "description": "How often (in milliseconds) to poll for metrics",
-            "name": "pollInterval",
-            "required": false,
-            "title": "Poll Interval (ms)",
-            "type": "integer"
-        }
+            "description": "The source to display in the legend for the data.",
+            "name": "source",
+            "title": "Source",
+            "type": "string",
+            "required": false
+        },
+
     ]
 }
