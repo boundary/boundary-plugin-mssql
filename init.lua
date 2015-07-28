@@ -18,7 +18,7 @@ local Plugin = framework.Plugin
 local CachedDataSource = framework.CachedDataSource
 local gsplit = framework.string.gsplit
 local split = framework.string.split
-local pack = framework.util.pack
+local ipack = framework.util.ipack
 
 local params = framework.params
 
@@ -75,7 +75,7 @@ function plugin:onParseValues(data)
         local factor = metrics_map[metric][2]
         value = factor * tonumber(value)
         source = self.source .. '.' .. source
-        table.insert(result, pack(boundary_metric, value, nil, source))
+        ipack(result, boundary_metric, value, nil, source)
       end
     end
   end
