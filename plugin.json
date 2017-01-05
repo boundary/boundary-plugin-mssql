@@ -24,8 +24,8 @@
     "icon": "icon.png",
     "command": "powershell -NoLogo -NonInteractive -Command Set-ExecutionPolicy RemoteSigned; .\\plugin.ps1",
     "postExtract": "",
-    "command_lua": "boundary-meter init.lua",
     "postExtract_lua": "",
+    "command_lua": "boundary-meter init.lua",
     "metrics": [
         "MSSQL_ACTIVE_TEMP_TABLES",
         "MSSQL_USER_CONNECTIONS",
@@ -63,7 +63,7 @@
             "title": "Source",
             "type": "string",
             "required": false
-        },
+        }
 
     ]
 }
