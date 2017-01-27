@@ -6,7 +6,11 @@ function getInstances
     {
         if (($service.name -eq "MSSQLSERVER") -or ($service.name -like "MSSQL$*"))
         {
+          if($service.name -eq "MSSQLSERVER"){
+            $instances += "SQLServer"
+          }else{
             $instances += $service.name
+          }
         }
     }
     return $instances
