@@ -29,9 +29,73 @@ function getInstances
     return $instances
 }
 
+$PARAM_NAME_MAP = @{}
+function parseJson([string]$jsonString){
+    $jsonString = $jsonString -replace '{', ''
+    $jsonString = $jsonString -replace '}', ''
+    $jsonString = $jsonString -replace '\t', ''
+    $jsonString = $jsonString -replace '\n', ''
+    Write-Host ("{0} {1}" -f "JSON 1----->", $jsonString2 )
+    $a,$b = $jsonString -split ","
+    $paramName1,$paramvalue1 = $a -split ":"
+    $paramName2,$paramvalue2 = $b -split ":"
+    if($paramName1.Trim().StartsWith('"'))
+    {
+        $paramName1 = $paramName1.Trim().substring(1) -replace ".{1}$"
+    }
+    if($paramValue1.Trim().StartsWith('"'))
+    {
+        $paramValue1 = $paramValue1.Trim().substring(1) -replace ".{1}$"
+    }
+    if($paramName2.Trim().StartsWith('"'))
+    {
+        $paramName2 = $paramName2.Trim().substring(1) -replace ".{1}$"
+    }
+    if($paramValue2.Trim().StartsWith('"'))
+    {
+        $paramValue2 = $paramValue2.Trim().substring(1) -replace ".{1}$"
+    }
+    if($paramName1 -eq "pollInterval")
+    {
+        if($paramvalue1 -eq "")
+        {
+            $PARAM_NAME_MAP["pollInterval"] = 5000
+        }
+        else
+        {
+            $PARAM_NAME_MAP["pollInterval"] = [convert]::ToInt32($paramvalue1, 10)
+        }
+    
+    }
+   ElseIf( $paramName1 -eq "source")
+    {
+        $PARAM_NAME_MAP["SourceName"] = $paramvalue1
+    }
+    
+    if($paramName2 -eq "pollInterval")
+    { 
+        if($paramvalue2 -eq "")
+        {
+            $PARAM_NAME_MAP["pollInterval"] = 5000
+        }
+        else
+        {
+            $PARAM_NAME_MAP["pollInterval"] = [convert]::ToInt32($paramvalue2, 10)
+        }
+    }
+    ElseIf( $paramName2 -eq "source")
+    {
+        $PARAM_NAME_MAP["SourceName"] = $paramvalue2
+    }
+    
+    
+    Write-Host ("{0} {1}" -f $PARAM_NAME_MAP["pollInterval"], $PARAM_NAME_MAP["SourceName"])
+}
+
 $METRIC_COUNTERS = @()
 $BOUNDARY_NAME_MAP = @{}
-
+$json = Get-Content 'param.json' | Out-String 
+parseJson $json
 # Get a list of instances on the local machine
 $instances = getInstances
 foreach ($instance in $instances)
@@ -39,13 +103,31 @@ foreach ($instance in $instances)
     # Determine the source name to pass to Boundary and the counter prefix
     if ($instance -eq "MSSQLSERVER")
     {
-        $source = ""
-        $counter_prefix = "SQLServer"
+    	if($PARAM_NAME_MAP["SourceName"] -eq "")
+    	{
+	    	$source = ""
+	        $counter_prefix = "SQLServer"
+    	}
+    	else
+    	{
+            #Write-Host ("{0} {1}" -f "JSON source is----->", $PARAM_NAME_MAP["SourceName"] )
+    		$source = $PARAM_NAME_MAP["SourceName"]
+	        $counter_prefix = "SQLServer"
+    	} 
     }
     else
     {
-        $source = "{0}_{1}" -f $env:COMPUTERNAME, ($instance -split '\$')[1]
-        $counter_prefix = $instance
+    	if($PARAM_NAME_MAP["SourceName"] -eq "")
+    	{
+	        $source = "{0}_{1}" -f $env:COMPUTERNAME, ($instance -split '\$')[1]
+	        $counter_prefix = $instance
+        }
+    	else
+    	{
+	    	$source = "{0}_{1}" -f $PARAM_NAME_MAP["SourceName"], ($instance -split '\$')[1]
+	        $counter_prefix = $instance
+    	
+    	} 
     }
 
     # Get the local server's name for each counter (the names are sometimes different
@@ -89,4 +171,6 @@ while (1)
     # Note: outputMetrics samples the counters over a one-second interval, so
     # there's no need to sleep between calls.
     outputMetrics
+    
+    Start-Sleep -m $PARAM_NAME_MAP["pollInterval"]
 }

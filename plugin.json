@@ -25,7 +25,7 @@
     "command": "powershell -NoLogo -NonInteractive -Command Set-ExecutionPolicy RemoteSigned; .\\plugin.ps1",
     "postExtract": "",
     "postExtract_lua": "",
-    "command_lua": "boundary-meter init.lua",
+     "command_lua": "truesight-meter init.lua",
     "metrics": [
         "MSSQL_ACTIVE_TEMP_TABLES",
         "MSSQL_USER_CONNECTIONS",
