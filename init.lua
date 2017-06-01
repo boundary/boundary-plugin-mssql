@@ -41,7 +41,7 @@ local metrics_map = {
 
 local cmd_instances = {
   path = "powershell.exe",
-  args = {'-NoLogo -NonInteractive -NoProfile -Command Set-ExecutionPolicy UnRestricted; .\\mssql_instances.ps1'},
+  args = {'-NoLogo -NonInteractive -NoProfile -Command Set-ExecutionPolicy UnRestricted; .\\mssql_instances.ps1 < nul'},
   use_popen = true
 }
 

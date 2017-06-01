@@ -18,3 +18,4 @@ function getInstances
 
 $instances = getInstances
 Write-Host $instances 
+Exit
